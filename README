@@ -1,0 +1,12 @@
+#Настройка
+docker-compose up -d --build
+
+#Логи
+docker-compose logs -f bot
+
+#Остановка
+docker-compose down
+
+#Рестарт
+docker-compose down
+docker-compose up -d --build
