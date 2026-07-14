@@ -1,12 +1,29 @@
-#Настройка
+## Управление проектом
+
+
+* **Запуск проекта:**
+```bash
 docker-compose up -d --build
 
-#Логи
+```
+
+
+* **Просмотр логов:**
+```bash
 docker-compose logs -f bot
 
-#Остановка
+```
+
+
+* **Остановка проекта:**
+```bash
 docker-compose down
 
-#Рестарт
-docker-compose down
-docker-compose up -d --build
+```
+
+
+* **Перезапуск (обновление):**
+```bash
+docker-compose down && docker-compose up -d --build
+
+```
