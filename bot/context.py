@@ -87,7 +87,7 @@ def format_output(messages: list[MessageModel]) -> str:
     return "\n".join([f"{m.user_name}: {m.text}" for m in messages])
 
 
-async def get_smart_context(chat_id: int, target_message_id: int) -> list[MessageModel]:
+async def get_smart_context(chat_id: int, target_message_id: int) -> tuple[str, MessageModel]:
     """
     Главная функция. Собирает текущую сессию + родительские сессии (рекурсия = 1).
     """
@@ -97,7 +97,7 @@ async def get_smart_context(chat_id: int, target_message_id: int) -> list[Messag
 
         if not target_msg:
             print('не найдено ЦЕЛЕВОЕ')
-            return []
+            return "", None
 
         main_session = await get_session_for_message(session, chat_id, target_msg)
 

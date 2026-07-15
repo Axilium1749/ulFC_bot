@@ -49,25 +49,31 @@ async def handle_factcheck_request(message: Message):
 
         context, target_msg = await get_smart_context(chat_id, target_message_id)
 
+        if target_msg is None:
+            animation_task.cancel()
+            await status_msg.edit_text("Target message not found in database")
+            return
+
         animation_task.cancel()
         animation_task = asyncio.create_task(animate_status(status_msg, "Summarizing context"))
 
-        summarized_content = await call_summarizer(context, target_msg)
+        summarized_content = await call_summarizer(context, target_msg.text)
 
         animation_task.cancel()
         animation_task = asyncio.create_task(animate_status(status_msg, "Fact-checking"))
 
-        final_response = await call_factchekcer(summarized_content, target_msg, TOOLS)
+        final_response = await call_factchekcer(summarized_content, target_msg.text, TOOLS)
 
         animation_task.cancel()
 
         with suppress(TelegramBadRequest):
-            await status_msg.edit_text(final_response)
+            await status_msg.edit_text(final_response, parse_mode=ParseMode.MARKDOWN)
         
         cleanup_task.cancel()
 
     finally:
         if chat_id in active_chats:
+            await asyncio.sleep(2)
             active_chats.remove(chat_id)
 
 async def main():
