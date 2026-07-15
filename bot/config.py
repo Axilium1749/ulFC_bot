@@ -5,11 +5,39 @@
 """
 
 import os
+import sys
 from datetime import timedelta
 from dotenv import load_dotenv
 
 # Загружаем переменные окружения
 load_dotenv()
+
+
+def _validate_env_vars():
+    """
+    Проверяет наличие обязательных переменных окружения.
+    Если чего-то не хватает - выводит сообщение об ошибке и завершает программу с кодом 1.
+    """
+    required_vars = [
+        "BOT_TOKEN",
+        "OPENROUTER_API_KEY",
+        "TAVILY_API_KEY",
+        "DATABASE_URL",
+    ]
+
+    missing_vars = []
+    for var in required_vars:
+        value = os.getenv(var)
+        if value is None or value == "None" or value == "":
+            missing_vars.append(var)
+
+    if missing_vars:
+        print(f"Ошибка: Отсутствуют обязательные переменные окружения: {', '.join(missing_vars)}", file=sys.stderr)
+        sys.exit(1)
+
+
+# Проверяем обязательные переменные перед их использованием
+_validate_env_vars()
 
 # =============================================================================
 # API Ключи
@@ -18,7 +46,7 @@ load_dotenv()
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 TAVILY_API_KEY = os.getenv("TAVILY_API_KEY")
-DATABASE_URL=os.getenv("DATABASE_URL")
+DATABASE_URL = os.getenv("DATABASE_URL")
 
 # =============================================================================
 # AI Модели
@@ -83,11 +111,11 @@ __all__ = [
     "BOT_TOKEN",
     "OPENROUTER_API_KEY",
     "TAVILY_API_KEY",
+    "DATABASE_URL",
 
     # AI Модели
-    "SUMMARIZER_MODEL",
+    "SUMMARIZER_MODELS",
     "FACTCHECKER_MODEL",
-    "FACTCHECKER_FINAL_MODEL",
 
     # OpenRouter Настройки
     "OPENROUTER_BASE_URL",
@@ -98,9 +126,6 @@ __all__ = [
 
     # AI Инструменты
     "TOOLS",
-
-    # База Данных
-    "DATABASE_URL",
 
     # Сессии и Таймауты
     "SESSION_THRESHOLD",
