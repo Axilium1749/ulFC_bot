@@ -6,26 +6,26 @@
 ### 1. Запуск
 
 ```bash
-docker-compose up -d --build
+sudo docker compose up -d --build
 ```
 
 ### 2. Остановка
 
 ```bash
-docker-compose down
+sudo docker compose down
 ```
 
 ### 3. Просмотр логов
 
 ```bash
-docker-compose logs -f bot
+sudo docker compose logs -f bot
 ```
 
 ### 4. Перезапуск
 
 ```bash
-docker-compose down
-docker-compose up -d --build
+sudo docker compose down
+sudo docker compose up -d --build
 ```
 
 ### 5. Настройка .env
