@@ -30,7 +30,6 @@ async def call_ai(model: str, messages: list[Dict], tools: Optional[List] = None
     if tools:
         payload["tools"] = tools
 
-
     response = await client.post("/chat/completions", json=payload)
     if response.status_code == 429:
         
@@ -41,7 +40,7 @@ async def call_ai(model: str, messages: list[Dict], tools: Optional[List] = None
     return response.json()["choices"][0]["message"]
 
 
-async def call_summarizer(context_text: str, target_msg:str) -> str:
+async def call_summarizer(context_text: str, target_msg: str) -> str:
     prompt = f"""Ты — аналитик дискуссий, работающий в связке с фактчекером. 
     Твоя задача: объективно суммаризировать спор, отсекая все, что не относится к существу дела. 
     Твоя задача — быть «зеркалом», передавая позиции участников без искажений и сглаживания. Никаких собственных мнений.
@@ -88,7 +87,7 @@ async def call_factchekcer(summary: str, target_message: str, tools: List) -> Di
     {summary}
 
     Целевое сообщение для анализа:
-    "{target_message}"
+    "{target_message.text}"
 
     Инструкции по анализу:
     1. КРИТИКА: Ищи в сообщении логические ошибки, подмену понятий, вырванные из контекста цитаты или эмоциональные манипуляции. Твоя цель — вскрыть манипуляцию, а не смягчить углы.
@@ -111,18 +110,28 @@ async def call_factchekcer(summary: str, target_message: str, tools: List) -> Di
         tools=tools
     )
 
-    if "tool_calls" in response:
-        tool_call = response["tool_calls"][0]
-        query = json.loads(tool_call["function"]["arguments"])["query"]
+    if "tool_calls" in response and response["tool_calls"]:
 
-        search_result = await perform_search(query)
-
+        response.pop("refusal", None)
+        response.pop("reasoning", None)
         messages.append(response)
-        messages.append({
-            "role": "tool",
-            "tool_call_id": tool_call["id"],
-            "content": search_result
-        })
+
+        for tool_call in response["tool_calls"]:
+
+            try:
+                query = json.loads(tool_call["function"]["arguments"])["query"]
+
+                search_result = await perform_search(query)
+
+                messages.append({
+                    "role": "tool",
+                    "tool_call_id": tool_call["id"],
+                    "content": search_result
+                })
+
+            except (json.JSONDecodeError, KeyError) as e:
+                print(f"Ошибка обработки аргументов инструмента: {e}")
+
 
         final_response = await call_ai(model=FACTCHECKER_MODEL, messages=messages)
         return final_response["content"]

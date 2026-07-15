@@ -70,7 +70,7 @@ async def run_test():
 
     context, target_msg = await get_smart_context(chat_id, target_message_id)
 
-    summarized_content = await call_summarizer(context)
+    summarized_content = await call_summarizer(context, target_msg)
     print(f"Саммари: {summarized_content}")
 
     final_response = await call_factchekcer(summarized_content, target_msg, TOOLS)
